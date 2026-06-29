@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spocket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #080812;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ── Animated background ── */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0;
+      animation: orbFloat 3s ease forwards;
+    }
+    .orb1 { width:500px; height:500px; background:#4f46e520; top:-100px; left:-100px; animation-delay:.2s; }
+    .orb2 { width:400px; height:400px; background:#7c3aed18; bottom:-80px; right:-80px; animation-delay:.4s; }
+    .orb3 { width:300px; height:300px; background:#0ea5e915; top:40%; left:40%; animation-delay:.6s; }
+
+    @keyframes orbFloat {
+      to { opacity:1; transform: translate(0,0); }
+    }
+
+    /* ── Grid lines ── */
+    .grid-lines {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Splash content ── */
+    .splash {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0;
+    }
+
+    /* Logo */
+    .logo-wrap {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp .7s ease .3s forwards;
+      margin-bottom: 32px;
+    }
+
+    .logo-svg { display:flex; align-items:center; gap:14px; }
+    .logo-text { font-family:'Poppins',sans-serif; font-weight:900; color:#fff; letter-spacing:2px; line-height:1; }
+
+    /* Tagline */
+    .tagline {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp .7s ease .6s forwards;
+      margin-bottom: 48px;
+    }
+
+    .tagline h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .tagline h1 .accent {
+      background: linear-gradient(90deg, #818cf8, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline p {
+      font-size: 16px;
+      color: #64748b;
+      max-width: 380px;
+      line-height: 1.7;
+    }
+
+    /* Stats */
+    .stats {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp .7s ease .9s forwards;
+      display: flex;
+      gap: 40px;
+      margin-bottom: 52px;
+    }
+
+    .stat { text-align: center; }
+    .stat strong { display:block; font-size:26px; font-weight:900; color:#fff; }
+    .stat span   { font-size:11px; color:#475569; text-transform:uppercase; letter-spacing:1.5px; margin-top:4px; display:block; }
+
+    .stat-divider { width:1px; background:#1e293b; }
+
+    /* CTA Button */
+    .cta-wrap {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp .7s ease 1.1s forwards;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn-get-started {
+      padding: 18px 56px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: poPoppins;
+      letter-spacing: .5px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 40px #4f46e550;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-get-started::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .btn-get-started:hover { transform: translateY(-3px); box-shadow: 0 16px 48px #4f46e570; }
+    .btn-get-started:hover::before { opacity: 1; }
+    .btn-get-started span { position: relative; z-index: 1; }
+
+    .cta-note {
+      font-size: 12px;
+      color: #334155;
+      letter-spacing: .5px;
+    }
+
+    /* Loading bar */
+    .loader-bar {
+      position: fixed;
+      bottom: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed, #38bdf8);
+      animation: loadBar 2.5s ease 1.5s forwards;
+      z-index: 100;
+    }
+
+    @keyframes loadBar {
+      to { width: 100%; }
+    }
+
+    @keyframes fadeUp {
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    /* Exit animation */
+    .splash-exit {
+      animation: splashOut .5s ease forwards !important;
+    }
+    body.exit-bg {
+      animation: bgOut .5s ease forwards;
+    }
+
+    @keyframes splashOut {
+      to { opacity:0; transform:scale(.96); }
+    }
+    @keyframes bgOut {
+      to { opacity:0; }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      body { padding: 20px; }
+      .splash { padding: 0 16px; }
+      
+      .logo-wrap { margin-bottom: 24px; }
+      .logo-svg { gap: 10px; }
+      .logo-svg svg { width: 48px; height: 48px; }
+      .logo-text { font-size: 28px !important; letter-spacing: 1.5px; }
+      
+      .tagline { margin-bottom: 32px; }
+      .tagline h1 { font-size: clamp(24px, 8vw, 36px); margin-bottom: 12px; }
+      .tagline p { font-size: 14px; max-width: 100%; padding: 0 10px; }
+      
+      .stats { gap: 20px; margin-bottom: 36px; flex-wrap: wrap; justify-content: center; }
+      .stat strong { font-size: 22px; }
+      .stat span { font-size: 10px; }
+      .stat-divider { display: none; }
+      
+      .btn-get-started { padding: 14px 40px; font-size: 15px; border-radius: 12px; }
+      .cta-note { font-size: 11px; }
+      
+      .orb1 { width: 300px; height: 300px; }
+      .orb2 { width: 250px; height: 250px; }
+      .orb3 { width: 200px; height: 200px; }
+    }
+
+    @media (max-width: 400px) {
+      .logo-text { font-size: 24px !important; }
+      .tagline h1 { font-size: 22px; }
+      .tagline p { font-size: 13px; }
+      .stats { gap: 16px; }
+      .stat strong { font-size: 20px; }
+      .btn-get-started { padding: 12px 32px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <div class="grid-lines"></div>
+  <div class="loader-bar"></div>
+
+  <div class="splash" id="splash">
+
+    <div class="logo-wrap">
+      <div class="logo-svg" style="justify-content:center;">
+        <svg width="68" height="68" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg-splash" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4f46e5"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <rect width="44" height="44" rx="11" fill="url(#lg-splash)"/>
+          <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+          <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+        </svg>
+        <span class="logo-text" style="font-size:40px;">SPOCKET</span>
+      </div>
+    </div>
+
+    <div class="tagline">
+      <h1>Build your network.<br/><span class="accent">Earn real rewards.</span></h1>
+      <p>Join thousands of members growing their income through smart referrals and exclusive plans.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><strong>12K+</strong><span>Members</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>$480K</strong><span>Paid Out</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>4.9 ★</strong><span>Rating</span></div>
+    </div>
+
+    <div class="cta-wrap">
+      <button class="btn-get-started" onclick="enterApp()">
+        <span>Get Started &nbsp;→</span>
+      </button>
+      <p class="cta-note">Free to join · No credit card required</p>
+    </div>
+
+  </div>
+
+  <script>
+    function enterApp() {
+      document.getElementById('splash').classList.add('splash-exit');
+      document.body.classList.add('exit-bg');
+      sessionStorage.setItem('splashSeen', '1');
+      setTimeout(function() { window.location.href = 'index.html'; }, 480);
+    }
+
+    // Auto redirect after 4 seconds
+    setTimeout(function() { enterApp(); }, 4000);
+  </script>
+</body>
+</html>
+

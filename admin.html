@@ -1,0 +1,1006 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spocket — Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#080812; --surface:#0e0e1a; --card:#12121f; --card2:#16162a;
+      --border:#1e1e35; --border2:#2a2a45;
+      --primary:#4f46e5; --violet:#7c3aed;
+      --green:#10b981; --red:#ef4444; --gold:#f59e0b;
+      --text:#e2e8f0; --muted:#64748b; --radius:14px; --radius-sm:10px;
+    }
+    body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    button { cursor:pointer; font-family:inherit; }
+
+    /* LOGIN */
+    .admin-login {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+    }
+    .login-box {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      padding:40px; width:100%; max-width:380px;
+    }
+    .login-box h2 { font-size:22px; font-weight:800; margin-bottom:6px; }
+    .login-box p  { color:var(--muted); font-size:13px; margin-bottom:28px; }
+    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+    .field label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    .field input {
+      padding:12px 14px; background:var(--card2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:14px; outline:none;
+      transition:border .2s;
+    }
+    .field input:focus { border-color:var(--primary); }
+    .btn-main {
+      width:100%; padding:13px; background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; border:none; border-radius:var(--radius-sm); font-size:14px;
+      font-weight:700; transition:opacity .2s;
+    }
+    .btn-main:hover { opacity:.9; }
+    .err-msg { color:var(--red); font-size:13px; margin-top:10px; min-height:16px; }
+
+    /* PANEL */
+    .admin-panel { display:none; }
+
+    /* TOPBAR */
+    .admin-topbar {
+      background:var(--surface); border-bottom:1px solid var(--border);
+      padding:16px 32px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100;
+    }
+    .admin-topbar .brand { display:flex; align-items:center; gap:8px; font-size:18px; font-weight:900; }
+    .admin-topbar .brand span { font-size:22px; }
+    .admin-badge {
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px;
+    }
+    .btn-logout {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:8px 16px; border-radius:var(--radius-sm); font-size:13px; font-weight:600;
+      transition:all .2s;
+    }
+    .btn-logout:hover { background:var(--red); color:#fff; border-color:var(--red); }
+
+    /* CONTENT */
+    .admin-content { padding:32px; max-width:1200px; margin:0 auto; }
+
+    /* STATS ROW */
+    .admin-stats {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;
+    }
+    .astat-card {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      padding:20px;
+    }
+    .astat-card .label { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px; }
+    .astat-card .val   { font-size:28px; font-weight:800; }
+    .astat-card .val.green { color:var(--green); }
+
+    /* ADMIN TABS */
+    .admin-tab {
+      padding:9px 18px; background:var(--card); border:1px solid var(--border);
+      color:var(--muted); border-radius:var(--radius-sm); font-size:13px;
+      font-weight:600; cursor:pointer; transition:all .2s; font-family:inherit;
+    }
+    .admin-tab.active { background:linear-gradient(135deg,var(--primary),var(--violet)); color:#fff; border-color:transparent; }
+    .admin-tab-content { display:none; }
+    .admin-tab-content.active { display:block; }
+
+    /* SEARCH */
+    .search-row { display:flex; gap:12px; margin-bottom:20px; align-items:center; }
+    .search-input {
+      flex:1; padding:11px 16px; background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:14px; outline:none;
+      transition:border .2s;
+    }
+    .search-input:focus { border-color:var(--primary); }
+
+    /* TABLE */
+    .table-wrap {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      overflow:hidden;
+    }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:var(--card2); }
+    th {
+      padding:13px 16px; text-align:left; font-size:11px; font-weight:700;
+      color:var(--muted); text-transform:uppercase; letter-spacing:.8px;
+      border-bottom:1px solid var(--border);
+    }
+    td {
+      padding:14px 16px; font-size:13px; border-bottom:1px solid var(--border);
+      vertical-align:middle;
+    }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#ffffff04; }
+
+    .plan-tag {
+      display:inline-block; padding:3px 10px; border-radius:20px;
+      font-size:11px; font-weight:700;
+    }
+    .plan-none    { background:#1e293b; color:#64748b; }
+    .plan-VIP1    { background:#0c1a2e; color:#60a5fa; }
+    .plan-VIP2    { background:#0a1f1a; color:#34d399; }
+    .plan-VIP3    { background:#1c1000; color:#fbbf24; }
+    .plan-VIP4    { background:#1a0a00; color:#fb923c; }
+    .plan-SuperVIP{ background:#1a0a2e; color:#c084fc; }
+
+    .btn-view {
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+      transition:all .2s;
+    }
+    .btn-view:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* MODAL */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:#00000090;
+      z-index:500; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      width:100%; max-width:560px; max-height:90vh; overflow-y:auto;
+    }
+    .modal-head {
+      padding:20px 24px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .modal-head h3 { font-size:16px; font-weight:700; }
+    .btn-close {
+      background:transparent; border:none; color:var(--muted); font-size:20px;
+      line-height:1; transition:color .2s;
+    }
+    .btn-close:hover { color:var(--text); }
+    .modal-body { padding:24px; }
+
+    .user-profile-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;
+    }
+    .profile-item {
+      background:var(--card2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:12px 14px;
+    }
+    .profile-item .pi-label { font-size:10px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+    .profile-item .pi-val   { font-size:14px; font-weight:600; word-break:break-all; }
+
+    .deposit-section {
+      background:var(--card2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:20px; margin-top:4px;
+    }
+    .deposit-section h4 { font-size:13px; font-weight:700; margin-bottom:14px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+
+    .deposit-row { display:flex; gap:10px; margin-bottom:12px; }
+    .deposit-input {
+      flex:1; padding:11px 14px; background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:14px; outline:none;
+      transition:border .2s;
+    }
+    .deposit-input:focus { border-color:var(--green); }
+
+    .plan-select {
+      flex:1; padding:11px 14px; background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:14px; outline:none;
+      transition:border .2s;
+    }
+    .plan-select:focus { border-color:var(--primary); }
+
+    .btn-confirm {
+      padding:11px 20px; background:linear-gradient(135deg,var(--green),#059669);
+      color:#fff; border:none; border-radius:var(--radius-sm);
+      font-size:13px; font-weight:700; transition:opacity .2s; white-space:nowrap;
+    }
+    .btn-confirm:hover { opacity:.9; }
+
+    .deposit-msg { font-size:13px; min-height:18px; margin-top:4px; }
+    .deposit-msg.ok  { color:var(--green); }
+    .deposit-msg.err { color:var(--red); }
+
+    .tx-mini-list { margin-top:16px; display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; }
+    .tx-mini-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:9px 12px; background:var(--card); border-radius:8px;
+      font-size:12px; border:1px solid var(--border);
+    }
+    .tx-mini-item .txa { color:var(--green); font-weight:700; }
+    .tx-mini-item .txd { color:var(--muted); font-size:11px; }
+    .no-tx { color:var(--muted); font-size:13px; text-align:center; padding:16px 0; }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:28px; left:50%;
+      transform:translateX(-50%) translateY(80px);
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; padding:12px 28px; border-radius:30px;
+      font-size:14px; font-weight:600; z-index:9999;
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      pointer-events:none; white-space:nowrap;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+
+    @media(max-width:768px) {
+      .admin-stats { grid-template-columns:1fr 1fr; }
+      .user-profile-grid { grid-template-columns:1fr; }
+      .admin-content { padding:12px; }
+      .admin-topbar { padding:12px 14px; flex-wrap:wrap; gap:10px; }
+      th, td { padding:8px 10px; font-size:12px; }
+      .table-wrap { overflow-x:auto; }
+      table { min-width:600px; }
+      .modal { margin:0 8px; }
+      .deposit-row { flex-direction:column; }
+      .login-box { padding:28px 20px; }
+    }
+
+    @media(max-width:480px) {
+      .admin-stats { grid-template-columns:1fr 1fr; gap:10px; }
+      .astat-card .val { font-size:22px; }
+      .admin-content { padding:10px; }
+      .search-row { flex-direction:column; }
+      .login-box { padding:24px 16px; margin:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== ADMIN LOGIN ===== -->
+<div class="admin-login" id="adminLogin">
+  <div class="login-box">
+    <h2>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <svg width="38" height="38" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg-adm-login" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4f46e5"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <rect width="44" height="44" rx="11" fill="url(#lg-adm-login)"/>
+          <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+          <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+        </svg>
+        <span style="font-family:Poppins,sans-serif;font-weight:900;color:#fff;letter-spacing:1.5px;font-size:22px;">SPOCKET</span>
+      </div>
+    </h2>
+    <p>Spocket — Restricted Access</p>
+    <div class="field">
+      <label>Admin Username</label>
+      <input type="text" id="adminUser" placeholder="admin"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="adminPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    </div>
+    <button class="btn-main" onclick="adminLogin()">Login to Admin</button>
+    <p class="err-msg" id="loginErr"></p>
+  </div>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div class="admin-panel" id="adminPanel">
+
+  <div class="admin-topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="brand">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="34" height="34" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lg-adm-top" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4f46e5"/>
+                <stop offset="50%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+            <rect width="44" height="44" rx="11" fill="url(#lg-adm-top)"/>
+            <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+            <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+          </svg>
+          <span style="font-family:Poppins,sans-serif;font-weight:900;color:#fff;letter-spacing:1.5px;font-size:20px;">SPOCKET</span>
+        </div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+    <button class="btn-logout" onclick="adminLogout()">Logout</button>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="astat-card">
+        <div class="label">Total Users</div>
+        <div class="val" id="statTotal">0</div>
+      </div>
+      <div class="astat-card">
+        <div class="label">Active VIP Plans</div>
+        <div class="val" id="statVip">0</div>
+      </div>
+      <div class="astat-card">
+        <div class="label">Total Deposits</div>
+        <div class="val green" id="statDeposits">$0</div>
+      </div>
+      <div class="astat-card">
+        <div class="label">Total Wallets</div>
+        <div class="val green" id="statWallets">$0</div>
+      </div>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="admin-tab active" onclick="switchTab('users')">👥 Users</button>
+      <button class="admin-tab" onclick="switchTab('deposits')">📥 Deposit Requests</button>
+      <button class="admin-tab" onclick="switchTab('withdrawals')">💸 Withdrawals</button>
+      <button class="admin-tab" onclick="switchTab('orders')">🛍️ Orders</button>
+      <button class="admin-tab" onclick="switchTab('notifications')">🔔 Notifications</button>
+    </div>
+
+    <!-- TAB: USERS -->
+    <div id="tab-users" class="admin-tab-content active">
+      <div class="search-row">
+        <input class="search-input" id="searchInput" placeholder="Search by name, email or ID..." oninput="renderTable()"/>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th><th>ID</th><th>Email</th><th>Invited By Code</th><th>Plan</th><th>Wallet</th><th>Invites</th><th>Joined</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: DEPOSIT REQUESTS -->
+    <div id="tab-deposits" class="admin-tab-content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Request ID</th><th>User</th><th>Plan</th><th>Amount</th><th>Note</th><th>Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="requestsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: WITHDRAWALS -->
+    <div id="tab-withdrawals" class="admin-tab-content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>User</th><th>TRC-20 Address</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="withdrawTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: ORDERS -->
+    <div id="tab-orders" class="admin-tab-content">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Order ID</th><th>User</th><th>Product</th><th>Price</th><th>Commission</th><th>Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: NOTIFICATIONS -->
+    <div id="tab-notifications" class="admin-tab-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:700;">Send Notification to User</h3>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;max-width:560px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="field">
+            <label>Select User</label>
+            <select id="notifUser" class="plan-select" style="width:100%;">
+              <option value="">— Select User —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Type</label>
+            <select id="notifType" class="plan-select" style="width:100%;">
+              <option value="reward">Reward Added</option>
+              <option value="salary">Salary Added</option>
+              <option value="deposit">Deposit Confirmed</option>
+              <option value="general">General Message</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Amount ($) — optional</label>
+            <input type="number" id="notifAmount" class="deposit-input" placeholder="e.g. 500" style="width:100%;"/>
+          </div>
+          <div class="field">
+            <label>Message</label>
+            <textarea id="notifMsg" style="width:100%;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:inherit;outline:none;resize:vertical;" rows="3" placeholder="Enter notification message..."></textarea>
+          </div>
+          <button class="btn-confirm" style="width:100%;padding:13px;" onclick="sendNotification()">Send Notification</button>
+          <p id="notifResult" style="font-size:13px;min-height:16px;"></p>
+        </div>
+      </div>
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">Recent Notifications</h3>
+      <div id="notifList" class="table-wrap">
+        <table>
+          <thead><tr><th>User</th><th>Type</th><th>Message</th><th>Amount</th><th>Date</th></tr></thead>
+          <tbody id="notifTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== USER MODAL ===== -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">User Profile</h3>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="user-profile-grid" id="profileGrid"></div>
+
+      <div class="deposit-section">
+        <h4>💰 Add Deposit & Activate Plan</h4>
+        <div class="deposit-row">
+          <select class="plan-select" id="depositPlan">
+            <option value="">— Select Plan —</option>
+            <option value="VIP1">VIP 1 ($100)</option>
+            <option value="VIP2">VIP 2 ($500)</option>
+            <option value="VIP3">VIP 3 ($1,500)</option>
+            <option value="VIP4">VIP 4 ($3,500)</option>
+            <option value="SuperVIP">Super VIP ($10,000)</option>
+          </select>
+        </div>
+        <div class="deposit-row">
+          <input class="deposit-input" type="number" id="depositAmt" placeholder="Enter deposit amount ($)" min="1"/>
+          <button class="btn-confirm" onclick="confirmDeposit()">✓ Confirm</button>
+        </div>
+        <p class="deposit-msg" id="depositMsg"></p>
+        <div id="userTxList" class="tx-mini-list"></div>
+      </div>
+
+      <!-- Password Reset -->
+      <div class="deposit-section" style="margin-top:12px;">
+        <h4>🔑 Reset User Password</h4>
+        <div class="deposit-row">
+          <input class="deposit-input" type="text" id="newPassword" placeholder="New password (min 6 chars)"/>
+          <button class="btn-confirm" onclick="resetUserPassword()">Reset</button>
+        </div>
+        <p class="deposit-msg" id="passwordMsg"></p>
+      </div>
+
+      <!-- Set Withdraw PIN -->
+      <div class="deposit-section" style="margin-top:12px;">
+        <h4>🔐 Set Withdraw PIN</h4>
+        <div class="deposit-row">
+          <input class="deposit-input" type="text" id="newPin" placeholder="4-digit PIN" maxlength="4"/>
+          <button class="btn-confirm" onclick="setWithdrawPin()">Set PIN</button>
+        </div>
+        <p class="deposit-msg" id="pinMsg"></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  let db;
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyCwB-7YO9vQYZZ9x514Y5hcP-rOM2Nc5E0",
+        authDomain: "spocket-demo.firebaseapp.com",
+        projectId: "spocket-demo",
+        storageBucket: "spocket-demo.firebasestorage.app",
+        messagingSenderId: "450822852501",
+        appId: "1:450822852501:web:4fac2ca4cb31654145709c"
+      });
+    }
+    db = firebase.firestore();
+  });
+
+  const ADMIN_USER = 'admin';
+  const ADMIN_PASS = 'admin123';
+
+  const VIP_PLANS = [
+    { id:'VIP1',     label:'VIP 1',     recharge:100   },
+    { id:'VIP2',     label:'VIP 2',     recharge:500   },
+    { id:'VIP3',     label:'VIP 3',     recharge:1500  },
+    { id:'VIP4',     label:'VIP 4',     recharge:3500  },
+    { id:'SuperVIP', label:'Super VIP', recharge:10000 },
+  ];
+
+  let currentUserEmail = null;
+
+  async function getAllUsers() {
+    const snap = await db.collection('users').get();
+    const users = {};
+    snap.forEach(d => { users[d.id] = d.data(); });
+    return users;
+  }
+
+  async function saveUserData(email, data) {
+    await db.collection('users').doc(email).set(data, { merge: true });
+  }
+
+  // ===== LOGIN =====
+  function adminLogin() {
+    const u = document.getElementById('adminUser').value.trim();
+    const p = document.getElementById('adminPass').value;
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadPanel();
+    } else {
+      document.getElementById('loginErr').textContent = 'Invalid credentials.';
+    }
+  }
+
+  function adminLogout() {
+    document.getElementById('adminLogin').style.display = 'flex';
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminUser').value = '';
+    document.getElementById('adminPass').value = '';
+  }
+
+  // ===== LOAD PANEL =====
+  async function loadPanel() {
+    const users = await getAllUsers();
+    const list  = Object.values(users);
+    const vipCount     = list.filter(u => u.plan && u.plan !== 'None').length;
+    const totalDeposit = list.reduce((s,u) => s + (u.depositBalance || 0), 0);
+    const totalWallet  = list.reduce((s,u) => s + (u.wallet || 0), 0);
+    document.getElementById('statTotal').textContent    = list.length;
+    document.getElementById('statVip').textContent      = vipCount;
+    document.getElementById('statDeposits').textContent = '$' + totalDeposit.toFixed(2);
+    document.getElementById('statWallets').textContent  = '$' + totalWallet.toFixed(2);
+    renderTable(users);
+    renderRequests();
+
+    const sel = document.getElementById('notifUser');
+    if (sel) {
+      sel.innerHTML = '<option value="">— Select User —</option>' +
+        list.map(u => '<option value="' + u.email + '">' + u.name + ' (' + u.email + ')</option>').join('');
+    }
+  }
+
+  async function renderTable(users) {
+    if (!users) users = await getAllUsers();
+    const q    = document.getElementById('searchInput').value.toLowerCase();
+    const list = Object.values(users).filter(u =>
+      u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.id.toLowerCase().includes(q)
+    );
+    const tbody = document.getElementById('usersTable');
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">No users found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(u =>
+      '<tr>' +
+      '<td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">' + u.name.charAt(0).toUpperCase() + '</div><span style="font-weight:600">' + u.name + '</span></div></td>' +
+      '<td style="color:var(--muted);font-size:12px">' + u.id + '</td>' +
+      '<td style="color:var(--muted)">' + u.email + '</td>' +
+      '<td style="color:#a78bfa;font-size:12px;font-weight:600;">' + (u.usedRefCode || '-') + '</td>' +
+      '<td><span class="plan-tag plan-' + (u.plan || 'none') + '">' + (u.plan || 'None') + '</span></td>' +
+      '<td style="color:#10b981;font-weight:700">$' + (u.wallet || 0).toFixed(2) + '</td>' +
+      '<td>' + (u.inviteCount || 0) + '</td>' +
+      '<td style="color:var(--muted);font-size:12px">' + (u.joinDate || '-') + '</td>' +
+      '<td><button class="btn-view" onclick="openModal(\'' + u.email + '\')">View</button></td>' +
+      '</tr>'
+    ).join('');
+  }
+
+  // ===== MODAL =====
+  async function openModal(email) {
+    const users = await getAllUsers();
+    const user  = users[email];
+    currentUserEmail = email;
+    document.getElementById('modalTitle').textContent = user.name + ' - Profile';
+    const fields = [
+      { label:'Full Name',       val: user.name },
+      { label:'Email',           val: user.email },
+      { label:'User ID',         val: user.id },
+      { label:'Referral Code',   val: user.refCode },
+      { label:'Current Plan',    val: user.plan || 'None' },
+      { label:'Wallet Balance',  val: '$' + (user.wallet || 0).toFixed(2) },
+      { label:'Deposit Balance', val: '$' + (user.depositBalance || 0).toFixed(2) },
+      { label:'Total Invites',   val: user.inviteCount || 0 },
+      { label:'Invite Earnings', val: '$' + (user.inviteEarnings || 0).toFixed(2) },
+      { label:'Referred By',     val: user.referredBy || '-' },
+      { label:'Joined',          val: user.joinDate || '-' },
+      { label:'Total Tx',        val: (user.transactions || []).length },
+    ];
+    document.getElementById('profileGrid').innerHTML = fields.map(f =>
+      '<div class="profile-item"><div class="pi-label">' + f.label + '</div><div class="pi-val">' + f.val + '</div></div>'
+    ).join('');
+    document.getElementById('depositPlan').value = user.plan || '';
+    document.getElementById('depositAmt').value  = '';
+    document.getElementById('depositMsg').textContent = '';
+    renderUserTx(user);
+    document.getElementById('userModal').classList.add('open');
+  }
+
+  function renderUserTx(user) {
+    const list = (user.transactions || []).slice().reverse();
+    document.getElementById('userTxList').innerHTML = list.length === 0
+      ? '<p class="no-tx">No transactions yet</p>'
+      : list.map(tx =>
+          '<div class="tx-mini-item"><div><div>' + tx.desc + '</div><div class="txd">' + tx.date + '</div></div><div class="txa">+$' + tx.amount.toFixed(2) + '</div></div>'
+        ).join('');
+  }
+
+  function closeModal() {
+    document.getElementById('userModal').classList.remove('open');
+    currentUserEmail = null;
+  }
+
+  // ===== CONFIRM DEPOSIT =====
+  async function confirmDeposit() {
+    const msg    = document.getElementById('depositMsg');
+    const planId = document.getElementById('depositPlan').value;
+    const amount = parseFloat(document.getElementById('depositAmt').value);
+    if (!planId)             { msg.className='deposit-msg err'; msg.textContent='Please select a plan.'; return; }
+    if (!amount || amount<=0){ msg.className='deposit-msg err'; msg.textContent='Enter a valid amount.'; return; }
+
+    const users = await getAllUsers();
+    const user  = users[currentUserEmail];
+    const plan  = VIP_PLANS.find(p => p.id === planId);
+
+    const txs = user.transactions || [];
+    txs.push({ type:'deposit', desc: plan.label + ' deposit confirmed by admin', amount, date: new Date().toLocaleDateString() });
+
+    await saveUserData(currentUserEmail, {
+      plan: planId,
+      wallet: (user.wallet || 0) + amount,
+      depositBalance: (user.depositBalance || 0) + amount,
+      transactions: txs
+    });
+
+    msg.className = 'deposit-msg ok';
+    msg.textContent = 'Done! $' + amount.toFixed(2) + ' added to ' + user.name + '. Plan: ' + plan.label;
+    const updated = await getAllUsers();
+    renderUserTx(updated[currentUserEmail]);
+    loadPanel();
+    showToast('Deposit confirmed for ' + user.name);
+  }
+
+  // ===== DEPOSIT REQUESTS =====
+  async function renderRequests() {
+    const snap = await db.collection('deposit_requests').where('status','==','pending').get();
+    const requests = [];
+    snap.forEach(d => requests.push({ docId: d.id, ...d.data() }));
+    const tbody = document.getElementById('requestsTable');
+    if (requests.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">No pending requests</td></tr>';
+      return;
+    }
+    tbody.innerHTML = requests.map(r =>
+      '<tr>' +
+      '<td style="color:var(--muted);font-size:12px;">' + r.id + '</td>' +
+      '<td><div style="font-weight:600;">' + r.name + '</div><div style="font-size:11px;color:var(--muted);">' + r.email + '</div></td>' +
+      '<td><span class="plan-tag plan-' + r.planId + '">' + r.planLabel + '</span></td>' +
+      '<td style="color:#10b981;font-weight:700;">$' + r.amount.toLocaleString() + '</td>' +
+      '<td style="color:var(--muted);font-size:12px;max-width:160px;">' + (r.note || '-') + '</td>' +
+      '<td style="color:var(--muted);font-size:12px;">' + r.date + '</td>' +
+      '<td><span style="color:#f59e0b;font-size:12px;font-weight:600;">Pending</span></td>' +
+      '<td style="display:flex;gap:6px;"><button class="btn-view" style="border-color:#10b981;color:#10b981;" onclick="approveRequest(\'' + r.docId + '\',\'' + r.email + '\',\'' + r.planId + '\',\'' + r.planLabel + '\',' + r.amount + ',\'' + r.name + '\')">Approve</button><button class="btn-view" style="border-color:#ef4444;color:#ef4444;" onclick="rejectRequest(\'' + r.docId + '\',\'' + r.name + '\')">Reject</button></td>' +
+      '</tr>'
+    ).join('');
+  }
+
+  async function approveRequest(docId, email, planId, planLabel, amount, name) {
+    const users = await getAllUsers();
+    const user  = users[email];
+    if (!user) { showToast('User not found!'); return; }
+
+    const txs = user.transactions || [];
+    txs.push({ type:'deposit', desc: planLabel + ' deposit approved by admin', amount, date: new Date().toLocaleDateString() });
+    await saveUserData(email, {
+      plan: planId,
+      wallet: (user.wallet || 0) + amount,
+      depositBalance: (user.depositBalance || 0) + amount,
+      transactions: txs
+    });
+
+    await db.collection('deposit_requests').doc(docId).set({ status: 'approved' }, { merge: true });
+    loadPanel();
+    showToast(name + ' plan activated!');
+  }
+
+  async function rejectRequest(docId, name) {
+    await db.collection('deposit_requests').doc(docId).set({ status: 'rejected' }, { merge: true });
+    loadPanel();
+    showToast('Request from ' + name + ' rejected.');
+  }
+
+  // ===== ADMIN TABS =====
+  function switchTab(name) {
+    document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'withdrawals') renderWithdrawals();
+    if (name === 'orders') renderOrders();
+    if (name === 'notifications') renderNotifications();
+  }
+
+  // ===== ORDERS =====
+  async function renderOrders() {
+    const snap = await db.collection('orders').get();
+    const orders = [];
+    snap.forEach(d => orders.push({ docId: d.id, ...d.data() }));
+    orders.sort((a,b) => b.orderedAt.localeCompare(a.orderedAt));
+    const tbody = document.getElementById('ordersTable');
+    if (!orders.length) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px;">No orders yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const statusColor = o.status === 'processing' ? '#f59e0b' : '#10b981';
+      const commission  = o.commission ? '$' + o.commission.toFixed(2) : '-';
+      return '<tr>' +
+        '<td style="color:var(--muted);font-size:12px;">' + (o.id || o.docId) + '</td>' +
+        '<td style="color:#a78bfa;font-size:12px;">' + o.userEmail + '</td>' +
+        '<td style="font-weight:600;max-width:180px;">' + o.productName + '</td>' +
+        '<td style="color:#fff;font-weight:700;">$' + (o.price || 0).toFixed(2) + '</td>' +
+        '<td style="color:#10b981;font-weight:700;">' + commission + '</td>' +
+        '<td style="color:var(--muted);font-size:12px;">' + o.orderedAt + '</td>' +
+        '<td><span style="color:' + statusColor + ';font-size:12px;font-weight:600;">' + (o.status === 'processing' ? 'Processing' : 'Completed') + '</span></td>' +
+        '<td>' + (o.status === 'processing'
+          ? '<button class="btn-view" style="border-color:#10b981;color:#10b981;" onclick="adminCompleteOrder(\'' + o.docId + '\',\'' + o.userEmail + '\')">Complete</button>'
+          : '-') +
+        '</td></tr>';
+    }).join('');
+  }
+
+  async function adminCompleteOrder(docId, email) {
+    const snap = await db.collection('orders').doc(docId).get();
+    if (!snap.exists) { showToast('Order not found.'); return; }
+    const order = snap.data();
+    if (order.status === 'completed') { showToast('Already completed.'); return; }
+
+    const VIP_PLANS_ADMIN = [
+      { id:'VIP1', earningPct:0.8 }, { id:'VIP2', earningPct:2 },
+      { id:'VIP3', earningPct:5 },   { id:'VIP4', earningPct:8 },
+      { id:'SuperVIP', earningPct:11 }
+    ];
+
+    const users = await getAllUsers();
+    const userData = users[email];
+    if (!userData) { showToast('User not found.'); return; }
+
+    const plan       = VIP_PLANS_ADMIN.find(p => p.id === (order.planId || userData.plan));
+    const pct        = plan ? plan.earningPct : 0.8;
+    const commission = order.commission || parseFloat((order.price * pct / 100).toFixed(2));
+
+    // Mark completed
+    await db.collection('orders').doc(docId).set({ status: 'completed', commission }, { merge: true });
+
+    // Credit user: unfreeze + add commission
+    const unfrozen  = Math.max((userData.pendingEarnings || 0) - order.price, 0);
+    const newWallet = (userData.wallet || 0) + order.price + commission;
+    const txs       = userData.transactions || [];
+    txs.push({
+      type: 'commission',
+      desc: 'Order completed by admin: ' + order.productName + ' (+$' + commission.toFixed(2) + ')',
+      amount: order.price + commission,
+      date: new Date().toLocaleDateString()
+    });
+    await saveUserData(email, { wallet: newWallet, pendingEarnings: unfrozen, transactions: txs });
+
+    // Distribute referral commissions from profit
+    await distributeReferralCommissionsAdmin(email, commission, order.productName, users);
+
+    renderOrders();
+    loadPanel();
+    showToast('Order completed! Commission $' + commission.toFixed(2) + ' credited.');
+  }
+
+  async function distributeReferralCommissionsAdmin(earnerEmail, profit, productName, users) {
+    const earner = users[earnerEmail];
+    if (!earner || !earner.referredBy) return;
+
+    const l1User = users[earner.referredBy];
+    if (l1User) {
+      const l1Bonus = parseFloat((profit * 0.05).toFixed(2));
+      if (l1Bonus > 0) {
+        const l1Txs = l1User.transactions || [];
+        l1Txs.push({ type:'referral', desc:'L1 referral commission from ' + earner.name + ' (' + productName + ')', amount: l1Bonus, date: new Date().toLocaleDateString() });
+        await saveUserData(earner.referredBy, { wallet: (l1User.wallet||0)+l1Bonus, inviteEarnings: (l1User.inviteEarnings||0)+l1Bonus, transactions: l1Txs });
+
+        if (l1User.referredBy) {
+          const l2User = users[l1User.referredBy];
+          if (l2User) {
+            const l2Bonus = parseFloat((profit * 0.03).toFixed(2));
+            if (l2Bonus > 0) {
+              const l2Txs = l2User.transactions || [];
+              l2Txs.push({ type:'referral', desc:'L2 referral commission from ' + earner.name + ' via ' + l1User.name + ' (' + productName + ')', amount: l2Bonus, date: new Date().toLocaleDateString() });
+              await saveUserData(l1User.referredBy, { wallet: (l2User.wallet||0)+l2Bonus, inviteEarnings: (l2User.inviteEarnings||0)+l2Bonus, transactions: l2Txs });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ===== WITHDRAWALS =====
+  async function renderWithdrawals() {
+    const snap = await db.collection('withdrawals').get();
+    const requests = [];
+    snap.forEach(d => requests.push({ docId: d.id, ...d.data() }));
+    requests.sort((a,b) => b.id.localeCompare(a.id));
+    const tbody = document.getElementById('withdrawTable');
+    if (!requests.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No withdrawal requests</td></tr>';
+      return;
+    }
+    tbody.innerHTML = requests.map(r => {
+      const statusColor = r.status === 'pending' ? '#f59e0b' : r.status === 'approved' ? '#10b981' : '#ef4444';
+      return '<tr>' +
+        '<td style="color:var(--muted);font-size:12px;">' + r.id + '</td>' +
+        '<td><div style="font-weight:600;">' + r.name + '</div><div style="font-size:11px;color:var(--muted);">' + r.email + '</div></td>' +
+        '<td style="font-size:12px;color:#a78bfa;word-break:break-all;">' + r.address + '</td>' +
+        '<td style="color:#10b981;font-weight:700;">$' + r.amount.toFixed(2) + '</td>' +
+        '<td style="color:var(--muted);font-size:12px;">' + r.date + '</td>' +
+        '<td><span style="color:' + statusColor + ';font-size:12px;font-weight:600;">' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</span></td>' +
+        '<td style="display:flex;gap:6px;">' +
+          (r.status === 'pending' ? '<button class="btn-view" style="border-color:#10b981;color:#10b981;" onclick="approveWithdraw(\'' + r.docId + '\',\'' + r.email + '\',' + r.amount + ',\'' + r.address + '\',\'' + r.name + '\')">Approve</button><button class="btn-view" style="border-color:#ef4444;color:#ef4444;" onclick="rejectWithdraw(\'' + r.docId + '\',\'' + r.email + '\',' + r.amount + ',\'' + r.name + '\')">Reject</button>' : '-') +
+        '</td></tr>';
+    }).join('');
+  }
+
+  async function approveWithdraw(docId, email, amount, address, name) {
+    await db.collection('withdrawals').doc(docId).set({ status: 'approved' }, { merge: true });
+    await addNotif(email, 'withdraw', 'Your withdrawal of $' + amount.toFixed(2) + ' has been approved and sent to ' + address.slice(0,10) + '...', amount);
+    renderWithdrawals();
+    showToast('Withdrawal approved for ' + name);
+  }
+
+  async function rejectWithdraw(docId, email, amount, name) {
+    await db.collection('withdrawals').doc(docId).set({ status: 'rejected' }, { merge: true });
+    const users = await getAllUsers();
+    const user  = users[email];
+    if (user) {
+      const txs = user.transactions || [];
+      txs.push({ type:'refund', desc:'Withdrawal rejected - refunded', amount, date: new Date().toLocaleDateString() });
+      await saveUserData(email, { wallet: (user.wallet || 0) + amount, transactions: txs });
+    }
+    await addNotif(email, 'withdraw', 'Your withdrawal request was rejected. Amount refunded to wallet.', amount);
+    renderWithdrawals();
+    showToast('Withdrawal rejected and refunded.');
+  }
+
+  // ===== NOTIFICATIONS =====
+  async function addNotif(email, type, message, amount) {
+    await db.collection('notifications').add({ email, type, message, amount: amount || 0, date: new Date().toLocaleDateString(), read: false });
+  }
+
+  async function sendNotification() {
+    const email   = document.getElementById('notifUser').value;
+    const type    = document.getElementById('notifType').value;
+    const amount  = parseFloat(document.getElementById('notifAmount').value) || 0;
+    const message = document.getElementById('notifMsg').value.trim();
+    const result  = document.getElementById('notifResult');
+
+    if (!email)   { result.style.color='#ef4444'; result.textContent='Select a user.'; return; }
+    if (!message) { result.style.color='#ef4444'; result.textContent='Enter a message.'; return; }
+
+    if (amount > 0 && (type === 'reward' || type === 'salary' || type === 'deposit')) {
+      const users = await getAllUsers();
+      const user  = users[email];
+      if (user) {
+        const txs = user.transactions || [];
+        txs.push({ type, desc: message, amount, date: new Date().toLocaleDateString() });
+        await saveUserData(email, {
+          wallet: (user.wallet || 0) + amount,
+          inviteEarnings: (user.inviteEarnings || 0) + amount,
+          transactions: txs
+        });
+      }
+    }
+
+    await addNotif(email, type, message, amount);
+    document.getElementById('notifMsg').value    = '';
+    document.getElementById('notifAmount').value = '';
+    result.style.color = '#10b981';
+    result.textContent = 'Notification sent!';
+    renderNotifications();
+    loadPanel();
+    setTimeout(() => { result.textContent = ''; }, 2000);
+  }
+
+  async function renderNotifications() {
+    const snap = await db.collection('notifications').get();
+    const notifs = [];
+    snap.forEach(d => notifs.push(d.data()));
+    notifs.sort((a,b) => b.date.localeCompare(a.date));
+    const tbody = document.getElementById('notifTable');
+    const users = await getAllUsers();
+    if (!notifs.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No notifications sent</td></tr>';
+      return;
+    }
+    const typeColors = { reward:'#10b981', salary:'#f59e0b', deposit:'#4f46e5', general:'#64748b', withdraw:'#0ea5e9' };
+    tbody.innerHTML = notifs.map(n => {
+      const user = users[n.email];
+      const name = user ? user.name : n.email;
+      return '<tr>' +
+        '<td style="font-weight:600;">' + name + '</td>' +
+        '<td><span style="color:' + (typeColors[n.type]||'#64748b') + ';font-weight:600;font-size:12px;">' + n.type.toUpperCase() + '</span></td>' +
+        '<td style="color:var(--muted);font-size:13px;">' + n.message + '</td>' +
+        '<td style="color:#10b981;font-weight:700;">' + (n.amount > 0 ? '$' + n.amount.toFixed(2) : '-') + '</td>' +
+        '<td style="color:var(--muted);font-size:12px;">' + n.date + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ===== PASSWORD RESET =====
+  async function resetUserPassword() {
+    const newPass = document.getElementById('newPassword').value.trim();
+    const msg     = document.getElementById('passwordMsg');
+    if (!newPass || newPass.length < 6) { msg.className='deposit-msg err'; msg.textContent='Min 6 characters.'; return; }
+    await saveUserData(currentUserEmail, { pass: newPass });
+    msg.className = 'deposit-msg ok';
+    msg.textContent = 'Password reset successfully.';
+    document.getElementById('newPassword').value = '';
+  }
+
+  // ===== SET WITHDRAW PIN =====
+  async function setWithdrawPin() {
+    const pin = document.getElementById('newPin').value.trim();
+    const msg = document.getElementById('pinMsg');
+    if (!pin || pin.length !== 4 || isNaN(pin)) { msg.className='deposit-msg err'; msg.textContent='Enter a valid 4-digit PIN.'; return; }
+    await saveUserData(currentUserEmail, { withdrawPin: pin });
+    msg.className = 'deposit-msg ok';
+    msg.textContent = 'PIN set successfully.';
+    document.getElementById('newPin').value = '';
+  }
+
+  // ===== TOAST =====
+  function showToast(m) {
+    const t = document.getElementById('toast');
+    t.textContent = m;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  document.getElementById('userModal').addEventListener('click', function(e){
+    if (e.target === this) closeModal();
+  });
+
+  // Expose to window for onclick
+  window.adminLogin = adminLogin;
+  window.adminLogout = adminLogout;
+  window.renderTable = renderTable;
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.confirmDeposit = confirmDeposit;
+  window.approveRequest = approveRequest;
+  window.rejectRequest = rejectRequest;
+  window.switchTab = switchTab;
+  window.approveWithdraw = approveWithdraw;
+  window.rejectWithdraw = rejectWithdraw;
+  window.sendNotification = sendNotification;
+  window.resetUserPassword = resetUserPassword;
+  window.setWithdrawPin = setWithdrawPin;
+  window.adminCompleteOrder = adminCompleteOrder;
+    const u = document.getElementById('adminUser').value.trim();
+    const p = document.getElementById('adminPass').value;
+
+</script>
+</body>
+</html>
+

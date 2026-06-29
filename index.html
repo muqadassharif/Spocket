@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Spocket — Login</title>
+  <script>
+    if (!sessionStorage.getItem('splashSeen')) {
+      window.location.replace('splash.html');
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#080812; --surface:#0e0e1a; --card:#12121f; --card2:#16162a;
+      --border:#1e1e35; --primary:#4f46e5; --violet:#7c3aed;
+      --green:#10b981; --red:#ef4444; --text:#e2e8f0; --muted:#64748b;
+      --radius:16px; --radius-sm:10px;
+    }
+    body {
+      font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:16px; position:relative; overflow-x:hidden;
+    }
+
+    /* Background orbs */
+    body::before {
+      content:''; position:fixed; width:600px; height:600px;
+      background:radial-gradient(circle,#4f46e520,transparent 65%);
+      top:-100px; left:-100px; pointer-events:none; z-index:0;
+    }
+    body::after {
+      content:''; position:fixed; width:500px; height:500px;
+      background:radial-gradient(circle,#7c3aed18,transparent 65%);
+      bottom:-100px; right:-100px; pointer-events:none; z-index:0;
+    }
+
+    /* Grid lines */
+    .bg-grid {
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:52px 52px;
+    }
+
+    .auth-wrap {
+      position:relative; z-index:1;
+      width:100%; max-width:460px;
+      display:flex; flex-direction:column; gap:0;
+    }
+
+    /* Logo top — always visible */
+    .auth-logo {
+      display:flex; align-items:center; justify-content:center;
+      gap:12px; margin-bottom:20px;
+    }
+    .auth-logo .logo-text {
+      font-size:26px; font-weight:900; color:#fff; letter-spacing:2px;
+    }
+
+    /* Stats bar */
+    .auth-stats-bar {
+      display:flex; background:var(--card); border:1px solid var(--border);
+      border-radius:var(--radius) var(--radius) 0 0;
+      overflow:hidden; border-bottom:none;
+    }
+    .asb-item {
+      flex:1; padding:14px 10px; text-align:center;
+      border-right:1px solid var(--border);
+    }
+    .asb-item:last-child { border-right:none; }
+    .asb-item strong { display:block; font-size:18px; font-weight:800; color:#fff; }
+    .asb-item span { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+
+    /* Main card */
+    .auth-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:0 0 var(--radius) var(--radius);
+      padding:28px 28px 32px;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display:flex; background:var(--card2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:4px; margin-bottom:28px;
+    }
+    .atab {
+      flex:1; padding:11px; border:none; background:transparent;
+      color:var(--muted); border-radius:8px; font-size:14px;
+      font-weight:600; transition:all .25s; cursor:pointer; font-family:inherit;
+    }
+    .atab.active {
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; box-shadow:0 4px 16px #4f46e540;
+    }
+
+    /* Forms */
+    .aform { display:none; flex-direction:column; gap:18px; }
+    .aform.active { display:flex; }
+    .aform h2 { font-size:24px; font-weight:800; }
+    .form-sub { color:var(--muted); font-size:14px; margin-top:-10px; }
+
+    .field { display:flex; flex-direction:column; gap:7px; }
+    .field label { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+    .field input {
+      padding:14px 16px; background:var(--card2); border:1px solid var(--border);
+      border-radius:var(--radius-sm); color:var(--text); font-size:15px;
+      outline:none; transition:border .2s, box-shadow .2s; font-family:inherit;
+      width:100%;
+    }
+    .field input:focus { border-color:var(--primary); box-shadow:0 0 0 3px #4f46e520; }
+    .opt { color:#475569; font-weight:400; text-transform:none; letter-spacing:0; }
+
+    .btn-main {
+      padding:15px; background:linear-gradient(135deg,var(--primary),var(--violet));
+      color:#fff; border:none; border-radius:var(--radius-sm); font-size:15px;
+      font-weight:700; cursor:pointer; width:100%; letter-spacing:.3px;
+      box-shadow:0 4px 20px #4f46e535; transition:opacity .2s, transform .1s;
+      font-family:inherit;
+    }
+    .btn-main:hover { opacity:.9; }
+    .btn-main:active { transform:scale(.98); }
+
+    .amsg { font-size:13px; color:var(--red); min-height:16px; }
+
+    /* Features */
+    .auth-features {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-top:24px;
+    }
+    .af-item {
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; color:#94a3b8; font-weight:500;
+      padding:10px 12px; background:var(--card2);
+      border:1px solid var(--border); border-radius:var(--radius-sm);
+    }
+    .af-dot {
+      width:7px; height:7px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,var(--primary),var(--violet));
+      box-shadow:0 0 8px #4f46e580;
+    }
+
+    /* Desktop split layout */
+    @media(min-width:900px) {
+      body { padding:24px; align-items:stretch; }
+      .auth-wrap { max-width:100%; flex-direction:row; gap:0; min-height:100vh; align-items:stretch; }
+
+      .auth-left-panel {
+        flex:1; display:flex; align-items:center; justify-content:center;
+        padding:60px 48px;
+        background:linear-gradient(160deg,#07071a,#0c0c22,#080814);
+        border-right:1px solid var(--border); position:relative; overflow:hidden;
+      }
+      .auth-left-panel::before {
+        content:''; position:absolute; width:700px; height:700px;
+        background:radial-gradient(circle,#4f46e520,transparent 65%);
+        top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none;
+      }
+      .auth-left-panel::after {
+        content:''; position:absolute; inset:0;
+        background-image:
+          linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+          linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+        background-size:56px 56px; pointer-events:none;
+      }
+      .auth-left-inner { position:relative; z-index:2; max-width:420px; width:100%; }
+
+      .auth-right-panel {
+        width:500px; flex-shrink:0; display:flex; align-items:center;
+        justify-content:center; padding:40px 48px; background:var(--surface);
+      }
+
+      /* Hide mobile-only elements on desktop (left panel handles branding) */
+      .auth-logo { display:none; }
+      .auth-stats-bar { display:none; }
+      .auth-features { display:none; }
+      .auth-card {
+        border-radius:var(--radius); border:1px solid var(--border);
+        max-width:400px; width:100%;
+      }
+
+      /* Show desktop left panel */
+      .auth-left-panel { display:flex; }
+
+      /* Desktop logo in left panel */
+      .desktop-logo {
+        display:flex; align-items:center; gap:12px; margin-bottom:48px;
+      }
+      .desktop-logo .logo-text {
+        font-size:26px; font-weight:900; color:#fff; letter-spacing:2px;
+      }
+
+      .desktop-stats {
+        display:flex; gap:0; margin-bottom:40px;
+        background:var(--card); border:1px solid var(--border);
+        border-radius:var(--radius); overflow:hidden;
+      }
+      .ds-item {
+        flex:1; padding:20px 16px; text-align:center;
+        border-right:1px solid var(--border);
+      }
+      .ds-item:last-child { border-right:none; }
+      .ds-item strong { display:block; font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+      .ds-item span { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; }
+
+      .desktop-features { display:flex; flex-direction:column; gap:12px; }
+      .df-item {
+        display:flex; align-items:center; gap:12px;
+        font-size:14px; color:#94a3b8; font-weight:500;
+        padding:12px 16px; background:rgba(255,255,255,.03);
+        border:1px solid var(--border); border-radius:var(--radius-sm);
+      }
+      .df-dot {
+        width:8px; height:8px; border-radius:50%; flex-shrink:0;
+        background:linear-gradient(135deg,var(--primary),var(--violet));
+        box-shadow:0 0 10px #4f46e580;
+      }
+    }
+
+    /* Hide desktop elements on mobile */
+    .auth-left-panel { display:none; }
+    .auth-right-panel { width:100%; }
+    .desktop-logo, .desktop-stats, .desktop-features { display:none; }
+
+    /* Mid screens (600-899px) — no left panel, show logo above card */
+    @media(min-width:600px) and (max-width:899px) {
+      body { align-items:center; justify-content:center; }
+      .auth-wrap { max-width:480px; flex-direction:column; min-height:auto; }
+      .auth-right-panel { padding:32px 24px; }
+      .auth-logo { display:flex; }
+      .auth-stats-bar { display:flex; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="auth-wrap">
+
+    <!-- Desktop Left Panel -->
+    <div class="auth-left-panel">
+      <div class="auth-left-inner">
+        <div class="desktop-logo">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <defs>
+              <linearGradient id="lg-d" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4f46e5"/>
+                <stop offset="50%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+            <rect width="44" height="44" rx="11" fill="url(#lg-d)"/>
+            <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+            <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+          </svg>
+          <span class="logo-text">SPOCKET</span>
+        </div>
+
+        <div class="desktop-stats">
+          <div class="ds-item"><strong>12K+</strong><span>Members</span></div>
+          <div class="ds-item"><strong>$480K</strong><span>Paid Out</span></div>
+          <div class="ds-item"><strong>4.9★</strong><span>Rating</span></div>
+        </div>
+
+        <div class="desktop-features">
+          <div class="df-item"><span class="df-dot"></span>Earn money by inviting friends</div>
+          <div class="df-item"><span class="df-dot"></span>Unlock exclusive membership plans</div>
+          <div class="df-item"><span class="df-dot"></span>Track earnings in your wallet</div>
+          <div class="df-item"><span class="df-dot"></span>Instant activation bonuses</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel (always visible) -->
+    <div class="auth-right-panel">
+      <div style="width:100%;max-width:420px;">
+
+        <!-- Desktop Logo (shown above card on desktop when no left panel) -->
+        <div class="auth-logo">
+          <svg width="38" height="38" viewBox="0 0 44 44" fill="none">
+            <defs>
+              <linearGradient id="lg-m" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4f46e5"/>
+                <stop offset="50%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+            <rect width="44" height="44" rx="11" fill="url(#lg-m)"/>
+            <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+            <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+          </svg>
+          <span class="logo-text">SPOCKET</span>
+        </div>
+
+        <!-- Mobile Stats -->
+        <div class="auth-stats-bar">
+          <div class="asb-item"><strong>12K+</strong><span>Members</span></div>
+          <div class="asb-item"><strong>$480K</strong><span>Paid Out</span></div>
+          <div class="asb-item"><strong>4.9★</strong><span>Rating</span></div>
+        </div>
+
+        <!-- Auth Card -->
+        <div class="auth-card">
+
+          <!-- Logo inside card top -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;">
+            <svg width="36" height="36" viewBox="0 0 44 44" fill="none">
+              <defs>
+                <linearGradient id="lg-card" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="50%" stop-color="#a855f7"/>
+                  <stop offset="100%" stop-color="#ec4899"/>
+                </linearGradient>
+              </defs>
+              <rect width="44" height="44" rx="11" fill="url(#lg-card)"/>
+              <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+              <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+            </svg>
+            <span style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:2px;">SPOCKET</span>
+          </div>
+          <div class="auth-tabs">
+            <button class="atab active" id="tabLogin" onclick="showTab('login')">Sign In</button>
+            <button class="atab" id="tabReg" onclick="showTab('register')">Sign Up</button>
+          </div>
+
+          <!-- Login -->
+          <div id="login" class="aform active">
+            <h2>Welcome back</h2>
+            <p class="form-sub">Sign in to your Spocket account</p>
+            <div class="field">
+              <label>Email Address</label>
+              <input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email"/>
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password"/>
+            </div>
+            <button class="btn-main" onclick="loginUser()">Sign In →</button>
+            <p class="amsg" id="loginMsg"></p>
+          </div>
+
+          <!-- Register -->
+          <div id="register" class="aform">
+            <h2>Create account</h2>
+            <p class="form-sub">Start earning with Spocket today</p>
+            <div class="field">
+              <label>Full Name</label>
+              <input type="text" id="regName" placeholder="Enter your name" autocomplete="name"/>
+            </div>
+            <div class="field">
+              <label>Email Address</label>
+              <input type="email" id="regEmail" placeholder="Enter your email" autocomplete="email"/>
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" id="regPass" placeholder="Create a strong password" autocomplete="new-password"/>
+            </div>
+            <div class="field">
+              <label>Referral Code <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+              <input type="text" id="refCode" placeholder="Enter referral code (optional)" autocomplete="off"/>
+            </div>
+            <button class="btn-main" onclick="registerUser()">Create Account →</button>
+            <p class="amsg" id="regMsg"></p>
+          </div>
+        </div>
+
+        <!-- Mobile Features -->
+        <div class="auth-features">
+          <div class="af-item"><span class="af-dot"></span>Earn by inviting friends</div>
+          <div class="af-item"><span class="af-dot"></span>Exclusive VIP plans</div>
+          <div class="af-item"><span class="af-dot"></span>Track your earnings</div>
+          <div class="af-item"><span class="af-dot"></span>Instant bonuses</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+

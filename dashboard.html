@@ -1,0 +1,598 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spocket — Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body class="dash-body">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="logo-svg">
+        <svg class="logo-icon" width="36" height="36" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg-dash" x1="0" y1="44" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4f46e5"/>
+              <stop offset="50%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+          </defs>
+          <rect width="44" height="44" rx="11" fill="url(#lg-dash)"/>
+          <path d="M22 10 L32 15 L32 26 Q32 33 22 37 Q12 33 12 26 L12 15 Z" fill="#0d0d1f"/>
+          <circle cx="22" cy="16" r="2.2" fill="#a78bfa"/>
+        </svg>
+        <span class="logo-text" style="font-size:18px;">SPOCKET</span>
+      </div>
+    </div>
+
+    <div class="sb-section-label">NAVIGATION</div>
+    <nav class="sb-nav">
+      <a class="sb-link active" onclick="showPage('dashboard')" href="#">
+        <span class="sb-icon">⊞</span> Dashboard
+      </a>
+      <a class="sb-link" onclick="showPage('membership')" href="#">
+        <span class="sb-icon">◈</span> Membership
+      </a>
+      <a class="sb-link" onclick="showPage('invite')" href="#">
+        <span class="sb-icon">⊕</span> Invite & Earn
+      </a>
+      <a class="sb-link" onclick="showPage('wallet')" href="#">
+        <span class="sb-icon">◎</span> Wallet
+      </a>
+      <a class="sb-link" onclick="showPage('withdraw')" href="#">
+        <span class="sb-icon">↑</span> Withdraw
+      </a>
+      <a class="sb-link" onclick="showPage('products')" href="#">
+        <span class="sb-icon">⊡</span> Marketplace
+      </a>
+    </nav>
+
+    <div class="sb-section-label" style="margin-top:auto">USER ACCOUNT</div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">A</div>
+      <div class="sb-user-info">
+        <strong id="sbName">User</strong>
+        <span id="sbId">SPK-000</span>
+      </div>
+        <button class="sb-logout" onclick="logout()" title="Logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+    </div>
+  </aside>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div id="pageTitle" class="page-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="plan-chip" id="topPlan">Free</div>
+        <div class="notif-btn">🔔</div>
+        <button class="topbar-logout" onclick="logout()" title="Logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== PAGE: DASHBOARD ===== -->
+    <section id="page-dashboard" class="page active">
+
+      <div class="welcome-row">
+        <div>
+          <h2>Good day, <span id="wName">User</span> 👋</h2>
+          <p class="muted" style="margin-top:4px;">Here's your account overview for today.</p>
+        </div>
+        <button class="btn-main sm" onclick="showPage('membership')">Upgrade Plan ↗</button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Wallet Balance</span>
+            <span class="stat-ico green-ico">💰</span>
+          </div>
+          <div class="stat-val" id="statWallet">$0.00</div>
+          <div class="stat-sub green">↑ Total earnings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Total Invites</span>
+            <span class="stat-ico blue-ico">👥</span>
+          </div>
+          <div class="stat-val" id="statInvites">0</div>
+          <div class="stat-sub">Friends referred</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Invite Earnings</span>
+            <span class="stat-ico purple-ico">🎁</span>
+          </div>
+          <div class="stat-val" id="statInvEarn">$0.00</div>
+          <div class="stat-sub green">↑ From referrals</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Current Plan</span>
+            <span class="stat-ico gold-ico">⭐</span>
+          </div>
+          <div class="stat-val sm-val" id="statPlan">Starter</div>
+          <div class="stat-sub">Active membership</div>
+        </div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="dash-bottom">
+
+        <!-- Quick Actions -->
+        <div class="dash-widget">
+          <div class="widget-head">Quick Actions</div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="showPage('membership')">
+              <span>💎</span>
+              <div><strong>Upgrade Plan</strong><p>Unlock more rewards</p></div>
+            </button>
+            <button class="qa-btn" onclick="showPage('invite')">
+              <span>👥</span>
+              <div><strong>Invite Friends</strong><p>Earn per referral</p></div>
+            </button>
+            <button class="qa-btn" onclick="showPage('wallet')">
+              <span>💰</span>
+              <div><strong>View Wallet</strong><p>Check your balance</p></div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="dash-widget wide">
+          <div class="widget-head">Recent Transactions</div>
+          <div id="dashTx" class="tx-mini"></div>
+        </div>
+
+        <!-- Community Banner -->
+        <div class="dash-widget community-banner">
+          <div class="cb-text">
+            <div class="cb-tag">SPOCKET NETWORK</div>
+            <h3>Grow your team.<br/>Earn together.</h3>
+            <button class="btn-white" onclick="showPage('invite')">Start Inviting →</button>
+          </div>
+          <div class="cb-deco">🚀</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== PAGE: MEMBERSHIP ===== -->
+    <section id="page-membership" class="page">
+      <div class="page-header">
+        <h2>VIP Membership Plans</h2>
+        <p class="muted">Choose your plan and submit a deposit request to activate</p>
+      </div>
+      <div class="plans-grid vip-grid" id="plansGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ===== PAGE: INVITE ===== -->
+    <section id="page-invite" class="page">
+      <div class="page-header">
+        <h2>👥 Invite & Earn</h2>
+        <p class="muted">Share your code, build your team, unlock monthly income</p>
+      </div>
+
+      <!-- Ref Code + Stats Row -->
+      <div class="invite-top-row">
+        <div class="ref-card">
+          <p class="ref-label">Your Referral Code</p>
+          <div class="ref-code-big" id="refCodeDisplay">------</div>
+          <button class="btn-main" onclick="copyRef()">📋 Copy Code</button>
+        </div>
+        <div class="invite-stats-row">
+          <div class="istat-card">
+            <div class="istat-icon">👥</div>
+            <div class="istat-val" id="invTotal">0</div>
+            <div class="istat-label">Total Invites</div>
+          </div>
+          <div class="istat-card green-card">
+            <div class="istat-icon">💵</div>
+            <div class="istat-val" id="invEarned">$0.00</div>
+            <div class="istat-label">Total Earned</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Commission Banner -->
+      <div class="commission-banner">
+        <div class="comm-left">
+          <div class="comm-tag">💸 INVITE & EARN</div>
+          <h3>Earn from every store your network opens</h3>
+          <p>Get <strong>5% commission</strong> from your direct referrals' profits and <strong>3% commission</strong> from their referrals — 2 levels of passive income.</p>
+        </div>
+        <div class="comm-levels">
+          <div class="comm-level-item">
+            <div class="comm-level-badge l1">L1</div>
+            <div>
+              <strong>5% Commission</strong>
+              <span>From your direct referrals</span>
+            </div>
+          </div>
+          <div class="comm-arrow">→</div>
+          <div class="comm-level-item">
+            <div class="comm-level-badge l2">L2</div>
+            <div>
+              <strong>3% Commission</strong>
+              <span>From their referrals</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Bonus Cards -->
+      <div class="quick-bonus-row">
+        <div class="qb-card qb-green">
+          <div class="qb-icon">💰</div>
+          <div class="qb-info">
+            <strong>$10 Direct Bonus</strong>
+            <span>You earn $10 for every successful invite who opens a store</span>
+          </div>
+        </div>
+        <div class="qb-card qb-blue">
+          <div class="qb-icon">🔗</div>
+          <div class="qb-info">
+            <strong>$5 Second-Level Bonus</strong>
+            <span>You earn $5 when your referral invites someone who opens a store (they get $10)</span>
+          </div>
+        </div>
+        <div class="qb-card qb-purple">
+          <div class="qb-icon">📊</div>
+          <div class="qb-info">
+            <strong>Only 2 Levels</strong>
+            <span>You → Your Referrals → Their Referrals. Simple & powerful!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rewards Grid -->
+      <div class="rewards-grid">
+
+        <!-- Direct Store Referral Bonus -->
+        <div class="reward-card">
+          <div class="reward-card-header" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+            <div class="rch-icon">👥</div>
+            <div>
+              <h3>Direct Store Referral Bonus</h3>
+              <p>Earn when your direct referral opens a store</p>
+            </div>
+          </div>
+          <div class="reward-table">
+            <div class="rt-head">
+              <span>Store Value</span>
+              <span>Your Reward</span>
+            </div>
+            <div class="rt-row"><span>$100 Store</span><span class="rt-amt">$10</span></div>
+            <div class="rt-row"><span>$500 Store</span><span class="rt-amt">$25</span></div>
+            <div class="rt-row"><span>$1,500 Store</span><span class="rt-amt">$50</span></div>
+            <div class="rt-row"><span>$3,500 Store</span><span class="rt-amt">$75</span></div>
+            <div class="rt-row highlight"><span>$10,000 Store</span><span class="rt-amt gold">$200</span></div>
+          </div>
+        </div>
+
+        <!-- Second-Level Referral Bonus -->
+        <div class="reward-card">
+          <div class="reward-card-header" style="background:linear-gradient(135deg,#0ea5e9,#4f46e5);">
+            <div class="rch-icon">👥</div>
+            <div>
+              <h3>Second-Level Referral Bonus</h3>
+              <p>Earn when your referral invites someone who opens a store</p>
+            </div>
+          </div>
+          <div class="reward-table">
+            <div class="rt-head">
+              <span>Referred Store Value</span>
+              <span>Your Reward</span>
+            </div>
+            <div class="rt-row"><span>$100 Store</span><span class="rt-amt">$5</span></div>
+            <div class="rt-row"><span>$500 Store</span><span class="rt-amt">$10</span></div>
+            <div class="rt-row"><span>$1,500 Store</span><span class="rt-amt">$25</span></div>
+            <div class="rt-row"><span>$3,500 Store</span><span class="rt-amt">$50</span></div>
+            <div class="rt-row highlight"><span>$10,000 Store</span><span class="rt-amt gold">$100</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Team Building Rewards -->
+      <div class="team-section">
+        <div class="team-section-header">
+          <div>
+            <h2>🏆 Team Building Rewards</h2>
+            <p class="muted">Build a strong team and unlock fixed monthly salaries</p>
+          </div>
+        </div>
+
+        <div class="team-milestones">
+          <div class="milestone-card">
+            <div class="ms-members">👥 50</div>
+            <div class="ms-label">Members</div>
+            <div class="ms-deposit">Min. $100/member</div>
+            <div class="ms-reward">$500<span>/month</span></div>
+          </div>
+          <div class="milestone-card">
+            <div class="ms-members">👥 100</div>
+            <div class="ms-label">Members</div>
+            <div class="ms-deposit">Min. $100/member</div>
+            <div class="ms-reward">$1,000<span>/month</span></div>
+          </div>
+          <div class="milestone-card active-ms">
+            <div class="ms-badge">Popular</div>
+            <div class="ms-members">👥 250</div>
+            <div class="ms-label">Members</div>
+            <div class="ms-deposit">Min. $100/member</div>
+            <div class="ms-reward">$2,500<span>/month</span></div>
+          </div>
+          <div class="milestone-card">
+            <div class="ms-members">👥 500</div>
+            <div class="ms-label">Members</div>
+            <div class="ms-deposit">Min. $100/member</div>
+            <div class="ms-reward">$5,000<span>/month</span></div>
+          </div>
+          <div class="milestone-card elite-ms">
+            <div class="ms-badge gold-badge">Elite</div>
+            <div class="ms-members">👥 1,000</div>
+            <div class="ms-label">Members</div>
+            <div class="ms-deposit">Min. $100/member</div>
+            <div class="ms-reward">$10,000<span>/month</span></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== PAGE: PRODUCTS ===== -->
+    <section id="page-products" class="page">
+      <div class="page-header">
+        <h2>🛍️ Marketplace</h2>
+        <p class="muted">Place orders and earn commission</p>
+      </div>
+      <div class="products-grid" id="productsGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ===== PAGE: WALLET ===== -->
+    <section id="page-wallet" class="page">
+      <div class="page-header">
+        <h2>My Wallet</h2>
+        <p class="muted">Track your earnings and balance</p>
+      </div>
+
+      <div class="wallet-layout">
+
+        <div class="wallet-main">
+          <div class="wallet-hero">
+            <div class="wh-label">Total Balance</div>
+            <div class="wh-amount" id="walletBal">$0.00</div>
+            <div class="wh-sub">Available to withdraw</div>
+          </div>
+
+          <div class="wallet-breakdown">
+            <div class="wb-item">
+              <div class="wb-icon" style="background:#22c55e22;color:#22c55e">💵</div>
+              <div class="wb-info">
+                <span>Invite Earnings</span>
+                <strong id="wbInvite">$0.00</strong>
+              </div>
+            </div>
+            <div class="wb-item">
+              <div class="wb-icon" style="background:#6c63ff22;color:#6c63ff">🎁</div>
+              <div class="wb-info">
+                <span>Membership Bonus</span>
+                <strong id="wbBonus">$0.00</strong>
+              </div>
+            </div>
+            <div class="wb-item">
+              <div class="wb-icon" style="background:#f59e0b22;color:#f59e0b">⏳</div>
+              <div class="wb-info">
+                <span>Frozen Balance (Processing Orders)</span>
+                <strong id="wbPending">$0.00</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wallet-history">
+          <div class="widget-head">Transaction History</div>
+          <div id="txHistory" class="tx-list-full"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ===== PAGE: WITHDRAW ===== -->
+    <section id="page-withdraw" class="page">
+      <div class="page-header">
+        <h2>💸 Withdraw USDT</h2>
+        <p class="muted">Withdraw your earnings to your TRC-20 wallet</p>
+      </div>
+
+      <div class="withdraw-page-layout">
+
+        <!-- Balance Card -->
+        <div class="wd-balance-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="wd-bal-label">Available Balance</div>
+              <div class="wd-bal-amount" id="wdBalDisplay">0.00 USDT</div>
+            </div>
+            <div style="width:48px;height:48px;background:#10b98120;border:2px solid #10b98150;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;">₮</div>
+          </div>
+        </div>
+
+        <!-- Withdraw Form -->
+        <div class="wd-form-card">
+          <div class="wd-form-body">
+
+            <!-- Username -->
+            <div class="wd-field">
+              <label>Username</label>
+              <div class="wd-input-wrap">
+                <svg class="wd-svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                <input type="text" id="withdrawUsername" placeholder="Enter username of recipient"/>
+              </div>
+              <span class="wd-hint">Enter the username of the recipient on the platform.</span>
+            </div>
+
+            <!-- TRC20 Address -->
+            <div class="wd-field">
+              <label>Withdraw Address (USDT TRC20)</label>
+              <div class="wd-input-wrap">
+                <svg class="wd-svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                <input type="text" id="withdrawAddress" placeholder="Enter USDT TRC20 address"/>
+              </div>
+              <span class="wd-hint">Make sure it's a valid USDT TRC20 address. Funds sent to the wrong address cannot be recovered.</span>
+            </div>
+
+            <!-- Amount -->
+            <div class="wd-field">
+              <label>Amount (USDT)</label>
+              <div class="wd-input-wrap">
+                <svg class="wd-svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h4.5a2.5 2.5 0 010 5H9"/></svg>
+                <input type="number" id="withdrawAmount" placeholder="0.00" min="1" oninput="updateReceiveAmount()"/>
+              </div>
+            </div>
+
+            <!-- PIN -->
+            <div class="wd-field">
+              <label>Your Withdraw PIN</label>
+              <div class="wd-input-wrap">
+                <svg class="wd-svg-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <input type="password" id="withdrawPin" placeholder="Enter your withdraw PIN" maxlength="4"/>
+              </div>
+            </div>
+
+            <!-- Withdrawal Details -->
+            <div class="wd-details-box">
+              <div class="wd-details-title">Withdrawal Details</div>
+              <div class="wd-details-row">
+                <span>Network</span>
+                <span class="wd-tag-green">TRC20</span>
+              </div>
+              <div class="wd-details-row">
+                <span>Minimum Withdrawal</span>
+                <span>$30.00 USDT</span>
+              </div>
+              <div class="wd-details-row">
+                <span>Withdrawal Fee</span>
+                <span>1.00 USDT</span>
+              </div>
+              <div class="wd-details-row">
+                <span>You Will Receive</span>
+                <strong id="wdReceiveAmt">-- USDT</strong>
+              </div>
+            </div>
+
+            <!-- Warning -->
+            <div class="wd-warning-box">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#10b981" stroke-width="2" style="flex-shrink:0;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              <p>Please ensure all details are correct.<br/>USDT withdrawals cannot be canceled or reversed.</p>
+            </div>
+
+            <p id="withdrawMsg" class="wd-msg"></p>
+            <button class="wd-submit-btn" onclick="submitWithdraw()">Withdraw</button>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="wd-history-card">
+          <div class="widget-head">Recent Withdrawals</div>
+          <div id="wdHistory" class="wd-history-list"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Floating Action Buttons: Support + Admin -->
+  <div class="fab-group">
+    <a class="fab fab-support" href="https://wa.me/1234567890" target="_blank" title="Customer Support">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L.057 23.428a.5.5 0 00.609.61l5.71-1.485A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.5-5.24-1.375l-.374-.217-3.888 1.011 1.03-3.77-.237-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+      </svg>
+      <span class="fab-label">Live Support</span>
+    </a>
+    <a class="fab fab-admin" href="admin.html" target="_blank" title="Admin Panel">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        <circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/>
+        <path d="M19 4v2M18 5h2" stroke="#fff" stroke-width="1.5"/>
+      </svg>
+      <span class="fab-label">Admin</span>
+    </a>
+  </div>
+
+  <!-- Deposit Request Modal -->
+  <div class="modal-overlay" id="depositModal">
+    <div class="modal-box">
+      <div class="modal-hdr">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--violet));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">💰</div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;">Deposit Request</h3>
+            <p style="font-size:12px;color:var(--muted);margin-top:2px;">Submit your deposit to activate plan</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeDepositModal()">✕</button>
+      </div>
+      <div class="modal-bdy">
+        <div class="dep-info-row">
+          <div class="dep-info-item">
+            <span>Selected Plan</span>
+            <strong id="depositModalPlan">—</strong>
+          </div>
+          <div class="dep-info-item" style="border-color:#10b98130;background:#10b98108;">
+            <span>Deposit Amount</span>
+            <strong id="depositModalAmount" style="color:#10b981;font-size:22px;">—</strong>
+          </div>
+        </div>
+        <input type="hidden" id="depositReqPlan" />
+        <input type="hidden" id="depositReqAmount" />
+        <div class="dep-field">
+          <label>Payment Reference <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <textarea id="depositReqMsg" placeholder="Transaction ID, screenshot reference, or any note for admin..." rows="3"></textarea>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--card2);border-radius:var(--radius-sm);border:1px solid var(--border);">
+          <span style="font-size:16px;flex-shrink:0;">ℹ️</span>
+          <p style="font-size:12px;color:var(--muted);line-height:1.6;">Your request will be reviewed by admin. Once verified, your plan will be activated and balance added to your wallet.</p>
+        </div>
+        <button class="btn-main" onclick="submitDepositRequest()" style="margin-top:4px;">Submit Deposit Request →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
